@@ -29,3 +29,21 @@ tempdf = subset(state18, countyFips == 13) #13 has one of the lowest number of
 plot(x = tempdf$yield, y = tempdf$acres, main = "Yield vs. Acres", xlab = "Yield", 
      ylab = "Acres")
 table(state18$countyFips)
+
+#calculate potential total county yields
+county18$totalYield = 1
+county18$newMean = 1
+count = 0
+for(i in unique(state18$countyFips)){
+  count = count + 1
+  tempdf = subset(state18, countyFips == i)
+  tempdf$totalYield = 1
+  #something is going wrong here with calculating the total yield of bushels
+  for(j in length(tempdf$yield)){
+    tempdf$totalYield[j] = tempdf$yield[j]*tempdf$acres[j]
+  }
+  totalAcres = sum(tempdf$acres)
+  county18$totalYield[count] = sum(tempdf$totalYield)
+  #totalYield = county18$totalYield[count]
+  county18$newMean[count] = county18$totalYield[count]/totalAcres
+}
