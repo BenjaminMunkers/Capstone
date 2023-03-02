@@ -1,4 +1,6 @@
 
+# commodityCode 41 corn, 81 soybean
+# stateFips 18 Indiana, 17 Illinois
 # import data
 df1 = read.csv("C:/Users/jammu/Desktop/EFIN 499/msuCapstone_countyYields/UnitYields.csv")
 # not needed as I think the yields are already in yield per acre
