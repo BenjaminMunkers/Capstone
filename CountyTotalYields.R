@@ -13,7 +13,7 @@ tempdf = subset(tempdf, commodityCode == 81)
 # sets up the data frame to be used
 totalYields = data.frame(unique(tempdf$countyFips))
 averageYields = totalYields
-colnames(masterdf)[1] = "countyFips"
+colnames(totalYields)[1] = "countyFips"
 count = 1
 # might be a better way to code this but this works for now
 # sets up the blank data frames for yields and average yield
@@ -32,7 +32,7 @@ counties = averageYields
 for(i in 1:length(years)){
   temp = subset(tempdf, cropYear == years[i])
   #farms = temp %>% 
-    count(countyFips)
+    #count(countyFips)
   for(j in 1:length(counties)){
     newtemp = subset(temp, countyFips == counties[j])
     yield = sum(newtemp$yield * newtemp$acres)
