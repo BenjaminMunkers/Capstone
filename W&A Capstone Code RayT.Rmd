@@ -1,0 +1,42 @@
+---
+title: "W&A County Data Merge Code"
+author: "Raymond Trudeau"
+date: "3/5/2023"
+output: html_document
+---
+
+```{r}
+county_yield_data <- read.csv("C://Users//rtrud//Desktop//msuCapstone_countyYields//msuCapstone_countyYields//UnitYields.csv")
+```
+
+```{r}
+county_drought_data <- read.csv("C://Users//rtrud//Downloads//droughtDataCapstone.csv")
+```
+
+```{r}
+county_name_data <- read.csv("C://Users//rtrud//Desktop//msuCapstone_countyYields//msuCapstone_countyYields//CountyNames.csv")
+```
+
+```{r}
+county_name_code <- county_name_data %>%
+  subset(county_name_data$StateCode == 17 | county_name_data$StateCode == 18)
+```
+
+
+```{r}
+county_name_code <- data.frame(county_name_code$CountyCode, county_name_code$CountyName, county_name_code$StateCode)
+colnames(county_name_code)[1] <- "CountyCode"
+colnames(county_name_code)[2] <- "CountyName"
+colnames(county_name_code)[3] <- "StateCode"
+colnames(county_yield_data)[4] <- "CountyCode"
+colnames(county_yield_data)[3] <- "StateCode"
+```
+
+
+```{r}
+county_merged_data <- left_join(county_yield_data, county_name_code)
+
+county_merged_data$CountyName <- paste(county_merged_data$CountyName, "County")
+
+write.csv(county_merged_data, "C://Users//rtrud//Documents//county_merged_data.csv")
+```
