@@ -43,6 +43,8 @@ for(i in 1:length(years)){
   }
 }
 
+################################################################################
+
 # read in county names
 county.names.df = read.csv("C:/Users/Joseph/Desktop/EFIN 499/msuCapstone_countyYields/CountyNames.csv")
 
@@ -52,7 +54,7 @@ drought.df = read.csv("C:/Users/Joseph/Desktop/EFIN 499/dm_export_19970201_20170
 # extract year from each entry
 library(lubridate)
 drought.df$date <- as.Date(drought.df$ValidStart)
-drought.df$year <- year(drought.df$ValidStart)
+drought.df$cropYear <- year(drought.df$ValidStart)
 
 # average weekly percentage of drought levels to yearly data
 average.drought.levels <- 
@@ -62,9 +64,38 @@ average.drought.levels <-
             data = drought.df, FUN = mean)
 
 # rename columns
-colnames(average.drought.levels) = c('FIPS', 'Year', 'avg.None', 'avg.D0', 'avg.D1', 'avg.D2', 'avg.D3', 'avg.D4')
+colnames(average.drought.levels) = c('FIPS', 'cropYear', 'avg.None', 'avg.D0', 'avg.D1', 'avg.D2', 'avg.D3', 'avg.D4')
+
 
 # merge yearly averaged data with main drought dataset
-drought.aggregated.df = left_join(average.drought.levels, drought.df, multiple = "all")
+drought.aggregated.df = merge(average.drought.levels, drought.df, by = c('cropYear','FIPS'))
 
+# export file
 write.csv(drought.aggregated.df, file = 'C:/Users/Joseph/Desktop/EFIN 499/aggregated_drought_data.csv')
+
+################################################################################
+
+# add county names to unit yield dataframe
+county_yield_data = read.csv("C:/Users/Joseph/Desktop/EFIN 499/msuCapstone_countyYields/msuCapstone_countyYields/UnitYields.csv")
+
+county_name_code <- county.names.df %>%
+  subset(county.names.df$StateCode == 17 | county.names.df$StateCode == 18)
+
+county_name_code <- data.frame(county_name_code$CountyCode, county_name_code$CountyName, county_name_code$StateCode)
+colnames(county_name_code)[1] <- "CountyCode"
+colnames(county_name_code)[2] <- "CountyName"
+colnames(county_name_code)[3] <- "StateCode"
+colnames(county_yield_data)[4] <- "CountyCode"
+colnames(county_yield_data)[3] <- "StateCode"
+
+county_merged_data <- left_join(county_yield_data, county_name_code)
+county_merged_data$CountyName <- paste(county_merged_data$CountyName, "County")
+
+# create FIPS column with state and county FIPS together
+county_merged_data$FIPS = (county_merged_data$StateCode*1000) + county_merged_data$CountyCode
+
+#subset averaged drought data to only useful columns
+drought.averaged <- drought.aggregated.df |> select(cropYear, FIPS, None, D0, D1, D2, D3, D4)
+
+# merge averaged drought data with county merged data
+county_merged_drought_data <- merge(county_merged_data, drought.averaged, by = c("cropYear", "FIPS"))
