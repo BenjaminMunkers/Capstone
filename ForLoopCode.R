@@ -26,7 +26,8 @@ for(i in unique(df2$Year)){
     average4 = mean(df$D4)
     if(count == 0){
       count = 1+count
-      bigdf = data.frame(Year = i, FIPS = j,None = noDrought, D0 = average0, D1 = average1, D2 = average2, D3 = average3, D4 = average4)
+      bigdf = data.frame(Year = i, FIPS = j,None = noDrought, D0 = average0, 
+                         D1 = average1, D2 = average2, D3 = average3, D4 = average4)
     } else{
       bigdf[nrow(bigdf)+1,] = list(i,j,noDrought,average0,average1,average2,average3,average4)
     }
