@@ -1,12 +1,11 @@
 
 # Intermediate model
 rm(list = ls())
-main_df = read.csv("C:/Users/jammu/Desktop/EFIN 499/final_merged_data.csv")
 library(tidyverse)
+main_df = read.csv("C:/Users/jammu/Desktop/EFIN 499/final_merged_data.csv")
+
 state18 = subset(main_df, StateCode == 18)
 count = 0
-length(unique(state18$CountyCode))*length(unique(state18$cropYear))
-length(unique(state18$num_none))
 # gets total county yields for state 18
 for(i in unique(state18$cropYear)){
   for(j in unique(state18$CountyCode)){
@@ -22,7 +21,9 @@ for(i in unique(state18$cropYear)){
     }
   }
 }
+head(TYdf)
 trainSet = subset(TYdf, CountyCode == 41)
-TYdf = TYdf %>% 
-  add_column(Weeks_None = unique(state18$num_none))
-lm()
+# Left out the lowest drought level of D0
+lm(Yield ~ cropYear + avg.None + avg.D1 + avg.D2 + avg.D3 + avg.D4 + 
+     num_none + num_d1 + num_d2 + num_d3 + num_d4, trainSet)
+lm(Yield ~ cropYear + avg.None + avg.D1 + avg.D2 + avg.D3 + avg.D4, trainSet)
