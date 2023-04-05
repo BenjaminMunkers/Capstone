@@ -6,6 +6,7 @@ library(tidyverse)
 library(dplyr)
 
 drought.df = read.csv("C:/Users/Joseph/Desktop/EFIN 499/dm_export_19970201_20170201.csv")
+drought.df = read.csv("C:/Users/jammu/Desktop/Capstone/dm_export_19970201_20170201.csv")
 
 # Convert the percentage values to number of weeks
 
@@ -61,6 +62,7 @@ toc()
 # Merge drought variables with county yields data set
 
 county_yield_data = read.csv("C:/Users/Joseph/Desktop/EFIN 499/county_merged_drought_data.csv")
+county_yield_data = read.csv("C:/Users/jammu/Desktop/EFIN 499/merged_data.csv")
 
 tic()
 county_yield_drought = merge(county_yield_data, merged_drought_data, by = c("cropYear", "FIPS"))
@@ -92,3 +94,11 @@ colnames(county_yield_drought_clean)[20] = "Weeks.at.D4"
 # save new dataframe
 
 write.csv(county_yield_drought_clean, "C:/Users/Joseph/Desktop/EFIN 499/county_yield_drought_clean.csv")
+
+# removed random extra columns that I had - Ben
+cydd = county_yield_drought_data[,-3]
+cydd = cydd[,-16]
+cydd = cydd[,-22]
+tic()
+write.csv(cydd, "C:/Users/jammu/Desktop/EFIN 499/final_merged_data.csv")
+toc()

@@ -1,7 +1,7 @@
 
 # Intermediate model
 rm(list = ls())
-main_df = read.csv("C:/Users/jammu/Desktop/EFIN 499/merged_data.csv")
+main_df = read.csv("C:/Users/jammu/Desktop/EFIN 499/final_merged_data.csv")
 library(tidyverse)
 state18 = subset(main_df, StateCode == 18)
 count = 0
