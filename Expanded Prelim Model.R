@@ -35,7 +35,7 @@ for (crop in unique(main_df$commodityCode)) {
       subset_data <- subset(main_df, commodityCode == crop & cropYear == year & FIPS == county)
       
       # Iterate over each percentage of yields reported
-      for (i in seq(5, 100, by = 5)) {
+      for (i in seq(5, 100, by = 1)) {
         # Calculate the number of observations to include in the confidence interval
         n <- round(nrow(subset_data) * i / 100)
         # Perform a random sample of the yields
@@ -46,7 +46,7 @@ for (crop in unique(main_df$commodityCode)) {
         # Calculate the confidence interval based on the t-distribution
         t_value <- qt(conf_level, df = n - 1)
         me <- t_value * (se / sqrt(n)) # calculates margin of error
-        # Append the results as a row to the dataframe
+        # Append the results as a row to the data frame
         results_df <- rbind(results_df, data.frame(Crop = crop,
                                                    Year = year,
                                                    County = county,
@@ -63,6 +63,11 @@ for (crop in unique(main_df$commodityCode)) {
 }
 toc()
 # 1546.97 sec elapsed
+# 1416.26 sec elapsed after t_value updated to discrete formula instead of function call
 
-# Print the first few rows of the results dataframe
+# Print the first few rows of the results data frame
 head(results_df)
+
+write.csv(results_df, "C:/Users/Joseph/Desktop/EFIN 499/mean_variance_ci.csv")
+
+resuls_df <- read.csv("C:/Users/Joseph/Desktop/EFIN 499/mean_variance_ci.csv")
