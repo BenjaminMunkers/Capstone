@@ -3,6 +3,9 @@ library(tictoc)
 library(matrixStats)
 library(ggplot2)
 library(dplyr)
+
+library(patchwork)
+library(gridExtra)
 # Read in data
 main_df <- read.csv("C:/Users/Joseph/Desktop/EFIN 499/county_merged_drought_data.csv")
 
@@ -104,5 +107,71 @@ weighted_results_df %>%
   facet_wrap(~CountyName, nrow = 3, ncol = 3, scales = 'free') +
   labs(x = "Percentage of yields reported", y = "Weighted mean yield", 
        title = "Weighted Mean Soy Yield and Confidence Intervals by County",
+       color = "Confidence Interval") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+################################################################################
+# Create graphs for largest counties for soy and corn over 3 different years
+# Largest Corn : Livingston County, FIPS = 17105
+# Largest Soy: Mclean County, FIPS = 17113
+
+# Read in data
+CountyYields <- read_csv("C:/Users/Joseph/Desktop/EFIN 499/County_Yields")
+data <- CountyYields |> select(cropYear, commodityCode, yield, acres, CountyName, FIPS)
+
+# Plot average yield/acre for both counties to find years of interest to graph
+
+# Largest Corn County
+Livingston_ypa <- data |> filter(commodityCode == 41, FIPS == 17105) |>
+  select(cropYear, yield) |> group_by(cropYear) |> summarise(avg_yield = mean(yield))
+# Largest Soy County
+Mclean_ypa <- data |> filter(commodityCode == 81, FIPS == 17113) |>
+  select(cropYear, yield) |> group_by(cropYear) |> summarise(avg_yield = mean(yield))
+
+# Combine the two datasets into one data frame with a new variable for county
+Livingston_ypa$county <- 'Livingston'
+Mclean_ypa$county <- 'Mclean'
+df <- rbind(Livingston_ypa, Mclean_ypa)
+
+# Create a ggplot
+df |> group_by(county) |> ggplot(aes(x = cropYear, y = avg_yield, group = county)) +
+  geom_line(aes(y = avg_yield, color = county)) +
+  xlab('Year') +
+  ylab('Average Farm Yield Per Acre') + ggtitle('Average Yield Per Acre')+
+  scale_color_manual(values = c("Livingston" = "blue", "Mclean" = "red"),
+                     labels = c("Livingston County (Corn)", "Mclean County (Soy)"))+
+  geom_vline(xintercept = c(2008, 2012, 2016), linetype = "dashed")
+
+################################################################################
+# For years 2008, 2012, 2016: run weighted model for Livingston Corn and Mclean Soy
+
+years <- c(2008, 2012, 2016)
+county_codes <- c(17105, 17113)
+crop_codes <- c(41,81)
+
+# Create Graphs for Livingston Corn
+weighted_results_df %>%
+  filter(Crop == 41 & Year %in%years & County == 17105) %>%
+  ggplot(aes(x = Percent_Reported, y = Mean_Yield)) + 
+  geom_line(aes(y = Mean_Yield)) +
+  geom_smooth(aes(y = Lower_CI, color = 'Lower 99% CI')) + 
+  geom_smooth(aes(y = Upper_CI, color = 'Upper 99% CI'))+
+  facet_wrap(~Year, nrow = 1, ncol = 3, scales = 'free')  +
+  labs(x = "Percentage of yields reported", y = "Weighted Mean Yield", 
+       title = "Weighted Mean Corn Yield and CI For Livingson County",
+       color = "Confidence Interval") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Create Graphs for Mclean Soy
+weighted_results_df %>%
+  filter(Crop == 81 & Year %in%years & County == 17113) %>%
+  ggplot(aes(x = Percent_Reported, y = Mean_Yield)) + 
+  geom_line(aes(y = Mean_Yield)) +
+  geom_smooth(aes(y = Lower_CI, color = 'Lower 99% CI')) + 
+  geom_smooth(aes(y = Upper_CI, color = 'Upper 99% CI'))+
+  facet_wrap(~Year, nrow = 1, ncol = 3, scales = 'free')  +
+  labs(x = "Percentage of yields reported", y = "Weighted Mean Yield", 
+       title = "Weighted Mean Soy Yield and CI For Mclean County",
        color = "Confidence Interval") +
   theme(plot.title = element_text(hjust = 0.5))
